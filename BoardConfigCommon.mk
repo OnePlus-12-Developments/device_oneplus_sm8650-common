@@ -79,13 +79,13 @@ BOARD_MKBOOTIMG_INIT_ARGS += --header_version $(BOARD_INIT_BOOT_HEADER_VERSION)
 
 # Kernel
 BOARD_BOOTCONFIG := \
-    androidboot.console=0 \
     androidboot.hardware=qcom \
-    androidboot.hypervisor.protected_vm.supported=true \
-    androidboot.load_modules_parallel=true \
     androidboot.memcg=1 \
     androidboot.vendor.qspa=true \
-    androidboot.usbcontroller=a600000.dwc3
+    androidboot.usbcontroller=a600000.dwc3 \
+    androidboot.console=0
+
+TARGET_KERNEL_CLANG_VERSION := r563880c
 
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
 BOARD_KERNEL_BASE := 0x00000000
@@ -93,21 +93,19 @@ BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_IMAGE_NAME := Image
 
 TARGET_KERNEL_SOURCE := kernel/oneplus/sm8650
-
-TARGET_KERNEL_ADDITIONAL_FLAGS := CONFIG_OPLUS_DEVICE_DTBS=y
 TARGET_KERNEL_CONFIG := \
     gki_defconfig \
     vendor/pineapple_GKI.config \
     vendor/oplus/pineapple_GKI.config
 
 # Kernel modules
-BOARD_SYSTEM_KERNEL_MODULES_LOAD := $(strip $(shell cat $(TARGET_KERNEL_SOURCE)/modules.system_dlkm.list.msm.pineapple))
+BOARD_SYSTEM_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/modules.load.system_dlkm))
 SYSTEM_KERNEL_MODULES := $(BOARD_SYSTEM_KERNEL_MODULES_LOAD)
-BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE := $(TARGET_KERNEL_SOURCE)/modules.vendor_blocklist.msm.pineapple
-BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat $(TARGET_KERNEL_SOURCE)/modules.vendor_dlkm.list.msm.pineapple $(TARGET_KERNEL_SOURCE)/modules.vendor_dlkm.list.oplus.pineapple))
+BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE := $(COMMON_PATH)/modules.blocklist
+BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/modules.load.pineapple $(COMMON_PATH)/modules.load.oplus))
 BOARD_VENDOR_RAMDISK_KERNEL_MODULES_BLOCKLIST_FILE := $(BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE)
-BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := $(strip $(shell cat $(TARGET_KERNEL_SOURCE)/modules.vendor_boot.list.msm.pineapple $(TARGET_KERNEL_SOURCE)/modules.vendor_boot.list.oplus.pineapple))
-BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := $(strip $(shell cat $(TARGET_KERNEL_SOURCE)/modules.recovery.list.msm.pineapple $(TARGET_KERNEL_SOURCE)/modules.recovery.list.oplus.pineapple))
+BOARD_VENDOR_RAMDISK_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/modules.load.vendor_boot.pineapple $(COMMON_PATH)/modules.load.vendor_boot.oplus))
+BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/modules.load.recovery.pineapple $(COMMON_PATH)/modules.load.recovery.oplus))
 BOOT_KERNEL_MODULES := $(BOARD_VENDOR_RAMDISK_RECOVERY_KERNEL_MODULES_LOAD)
 
 TARGET_KERNEL_EXT_MODULE_ROOT := kernel/oneplus/sm8650-modules
@@ -136,15 +134,13 @@ TARGET_KERNEL_EXT_MODULES := \
     qcom/opensource/video-driver \
     qcom/opensource/graphics-kernel \
     qcom/opensource/wlan/platform \
-    qcom/opensource/wlan/qcacld-3.0/.kiwi_v2 \
-    qcom/opensource/wlan/qcacld-3.0/.qca6750 \
+    qcom/opensource/wlan/qcacld-3.0 \
     qcom/opensource/bt-kernel \
     qcom/opensource/spu-kernel \
     qcom/opensource/mm-sys-kernel/ubwcp \
     nxp/opensource/driver
 
 TARGET_KERNEL_EXT_MODULES += \
-    oplus/hardware/radio/kernel/mdmfeature:kbuild \
     oplus/kernel/cpu/thermal:kbuild \
     oplus/kernel/device_info/pogo_keyboard:kbuild \
     oplus/kernel/device_info/tri_state_key:kbuild \
@@ -158,7 +154,6 @@ TARGET_KERNEL_EXT_MODULES += \
     oplus/kernel/touchpanel/oplus_touchscreen_v2:kbuild \
     oplus/kernel/touchpanel/synaptics_hbp:kbuild \
     oplus/kernel/tp/hbp/hbp:kbuild \
-    oplus/secure/biometrics/fingerprints/bsp/uff/driver:kbuild \
     oplus/secure/common/bsp/drivers/oplus_secure_common \
     oplus/sensor/kernel/oplus_consumer_ir:kbuild \
     oplus/sensor/kernel/qcom/sensor:kbuild
@@ -166,6 +161,7 @@ TARGET_KERNEL_EXT_MODULES += \
 # Platform
 BOARD_USES_QCOM_HARDWARE := true
 TARGET_BOARD_PLATFORM := pineapple
+TARGET_KERNEL_ADDITIONAL_FLAGS += TARGET_BOARD_PLATFORM=$(TARGET_BOARD_PLATFORM)
 
 # Metadata
 BOARD_USES_METADATA_PARTITION := true
